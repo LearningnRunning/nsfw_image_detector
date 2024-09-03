@@ -1,0 +1,10 @@
+
+/models
+/__pycache__
+/utils/__pycache__
+/utils/loggers/__pycache__
+/utils/loggers/clearml/__pycache__
+/utils/loggers/comet/__pycache__
+/utils/loggers/wandb/__pycache__
+/utils/segment/__pycache__
+/utils/tal/__pycache__
