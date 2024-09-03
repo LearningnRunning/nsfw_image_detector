@@ -46,3 +46,8 @@ seaborn>=0.11.0
 albumentations>=1.0.3
 pycocotools>=2.0
 gradio>=4.31.4
+
+# Api ----------------------------------------------------------------------
+uvicorn>=0.24.0
+fastapi>=0.103.2
+gunicorn>=23.0.0

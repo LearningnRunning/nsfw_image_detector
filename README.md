@@ -1,75 +1,94 @@
----
-title: Adult Image Detector
-emoji: 🚨
-colorFrom: yellow
-colorTo: green
-sdk: gradio
-sdk_version: 4.42.0
-app_file: app.py
-pinned: false
-license: mit
----
+# FastAPI Image Processing API
 
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+이 프로젝트는 FastAPI를 사용하여 nsfw 이미지 처리 API를 구현한 것입니다. 업로드된 이미지에 대해 객체 탐지를 수행하고 결과를 반환합니다.
 
-# Adult Image Detector
+## 기능
 
-## Model Description
+- 이미지 업로드 및 처리
+- 객체 탐지 수행
+- 결과를 JSON 형식으로 반환
 
-This model is a custom-trained version of YOLOv9-e, pre-trained on a custom dataset. YOLOv9 (You Only Look Once version 9) is a state-of-the-art object detection model known for its speed and accuracy.
+## 필요 조건
 
-## Model Details
+- Python 3.7+
+- pip
 
-- **Model Architecture:** YOLOv9-e
-- **Number of Layers:** 1,119
-- **Number of Parameters:** 69,366,830
-- **GFLOPs:** 243.4
+## 설치 방법
 
-## Training
+1. 리포지토리를 클론합니다:
+   ```
+   git clone https://github.com/yourusername/your-repo-name.git
+   cd your-repo-name
+   ```
 
-The model was trained for 10 epochs on a custom dataset. The training process showed consistent improvement in performance metrics.
+2. 가상 환경을 생성하고 활성화합니다:
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
 
-### Training Hyperparameters
+3. 필요한 패키지를 설치합니다:
+   ```
+   pip install -r requirements.txt
+   ```
 
-- **Initial Learning Rate (lr0):** 0.070011
-- **Final Learning Rate (lr1, lr2):** 0.00208
+## 사용 방법
 
-### Training Results
+### 개발 모드로 실행
 
-| Metric | Initial Value (Epoch 0) | Final Value (Epoch 9) |
-|--------|-------------------------|------------------------|
-| train/box_loss | 1.8995 | 1.4264 |
-| train/cls_loss | 2.644 | 1.1627 |
-| train/dfl_loss | 1.9846 | 1.6321 |
-| metrics/precision | 0.70196 | 0.69025 |
-| metrics/recall | 0.44274 | 0.69178 |
-| metrics/mAP_0.5 | 0.45088 | 0.7167 |
-| metrics/mAP_0.5:0.95 | 0.27358 | 0.47964 |
+uvicorn을 사용하여 개발 모드로 실행할 수 있습니다:
 
-## Performance
-
-The model showed significant improvement over the course of training:
-
-- **mAP@0.5:** Increased from 0.45088 to 0.7167
-- **mAP@0.5:0.95:** Improved from 0.27358 to 0.47964
-- **Precision:** Maintained around 0.69-0.70
-- **Recall:** Substantially improved from 0.44274 to 0.69178
-
-## Usage
-
-This model can be loaded and used with YOLOv5 compatible frameworks. Here's an example of how to load the model:
-
-```python
-from ultralytics import YOLO
-
-model = YOLO('path/to/your/model.pt')
-results = model('path/to/image.jpg')
+```
+uvicorn app:app --reload
 ```
 
-## Limitations and Biases
+### 프로덕션 모드로 실행
 
-As this model was trained on a custom dataset, it may have biases or limitations specific to that dataset. Users should evaluate the model's performance on their specific use case before deployment.
+gunicorn을 사용하여 프로덕션 모드로 실행할 수 있습니다:
 
-## Additional Information
+```
+gunicorn app:application -c gunicorn_config.py
+```
 
-For more details on the YOLOv9 architecture and its capabilities, please refer to the official YOLOv9 documentation and research paper.
+서버가 실행되면, `http://localhost:8001/docs`에서 Swagger UI를 통해 API를 테스트할 수 있습니다.
+
+## API 엔드포인트
+
+### POST /process_image/
+
+이미지를 업로드하고 처리합니다.
+
+**Parameters**
+- `file`: 업로드할 이미지 파일 (선택 사항, url이 제공되지 않은 경우 필수)
+- `url`: 처리할 이미지의 URL(선택 사항, 파일이 제공되지 않은 경우 필수)
+- `conf_threshold`: 신뢰도 임계값 (기본값: 0.25)
+- `iou_threshold`: IoU
+
+**Returns**
+객체 감지 결과 및 주석이 포함된 JSON 응답입니다.
+```
+{
+  "result": "nsfw"
+}
+```
+
+**Example**
+이미지 파일 또는 URL과 함께 POST 요청을 전송하여 API를 테스트할 수 있습니다:
+```
+# Using a file
+curl -X POST "http://localhost:8001/process_image/" \
+-H "accept: application/json" \
+-F "file=@path_to_your_image.jpg" \
+-F "conf_threshold=0.3" \
+-F "iou_threshold=0.5"
+
+# Using a URL
+curl -X POST "http://localhost:8001/process_image/" \
+-H "accept: application/json" \
+-F "url=https://example.com/image.jpg" \
+-F "conf_threshold=0.3" \
+-F "iou_threshold=0.5"
+```
+
+**License**
+이 프로젝트는 MIT 라이선스에 따라 라이선스가 부여됩니다. 자세한 내용은 라이선스 파일을 참조하세요.

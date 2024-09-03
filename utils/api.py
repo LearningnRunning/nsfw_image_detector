@@ -16,18 +16,32 @@ names = model.names
 imgsz = (640, 640)
 
 async def process_image_api(
-    file: UploadFile = File(...),
+    file: UploadFile = File(None),
+    url: str = Form(None),
     conf_threshold: float = Form(0.25),
     iou_threshold: float = Form(0.45),
     label_mode: str = Form("Draw Confidence")
 ):
-    contents = await file.read()
-    image = Image.open(io.BytesIO(contents))
+    # Check if either a file or a URL is provided
+    if file is not None:
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+    elif url is not None:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Ensure the request was successful
+            image = Image.open(io.BytesIO(response.content))
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=400, detail=f"Error fetching image from URL: {e}")
+    else:
+        raise HTTPException(status_code=400, detail="No image file or URL provided")
+
     image_np = np.array(image)
     
+    # Assuming process_image is your custom function that processes the image
     result = process_image(image_np, conf_threshold, iou_threshold, label_mode)
     
-    return JSONResponse(content={"result": result.result})
+    return JSONResponse(content={"result": result.result, "annotations": result.annotations})
 
 def process_image(image, conf_threshold, iou_threshold, label_mode):
     # 이미지 전처리
@@ -74,9 +88,9 @@ def process_image(image, conf_threshold, iou_threshold, label_mode):
                 annotations.append(annotation)
     
     result = 'nsfw' if harmful_label_list else 'nomal'
-    return ProcessResponse(result=result)
+    return ProcessResponse(result=result, annotations=annotations)
 
 class ProcessResponse:
-    def __init__(self, result: int):
+    def __init__(self, result: int, annotations: list):
         self.result = result
-        # self.annotations = annotations
+        self.annotations = annotations
