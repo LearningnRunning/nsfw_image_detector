@@ -52,6 +52,10 @@ gunicorn app:application -c gunicorn_config.py
 
 서버가 실행되면, `http://localhost:8001/docs`에서 Swagger UI를 통해 API를 테스트할 수 있습니다.
 
+## Demo
+(Try the demo here)[https://huggingface.co/spaces/LearningnRunning/adult_image_detector]
+Hugging Face Spaces에 대한 데모를 사용하여 브라우저에서 실시간으로 NSFW 이미지 감지 모델을 사용해 볼 수 있습니다. 
+
 ## API 엔드포인트
 
 ### POST /process_image/
@@ -92,4 +96,4 @@ curl -X POST "http://localhost:8001/process_image/" \
 
 
 ## License
-이 프로젝트는 MIT 라이선스에 따라 라이선스가 부여됩니다. 자세한 내용은 라이선스 파일을 참조하세요.
+이 프로젝트는 Apache-2.0에 따라 라이선스가 부여됩니다. 자세한 내용은 라이선스 파일을 참조하세요.
