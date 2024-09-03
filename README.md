@@ -90,5 +90,6 @@ curl -X POST "http://localhost:8001/process_image/" \
 -F "iou_threshold=0.5"
 ```
 
-**License**
+
+## License
 이 프로젝트는 MIT 라이선스에 따라 라이선스가 부여됩니다. 자세한 내용은 라이선스 파일을 참조하세요.
